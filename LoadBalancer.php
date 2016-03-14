@@ -67,7 +67,7 @@ class LoadBalancer
      * @param Request $request
      * @throws Exception
      */
-    public function handleRequest(Request $request = null)
+    public function handleRequest(Request $request)
     {
         $this->validateSettings();
         $host = ($this->loadBalancingVariant == self::SEQUENTIAL) ?
