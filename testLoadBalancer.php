@@ -8,13 +8,12 @@ CONST INITIAL_LOAD = 0.6;
 CONST SEQENTIAL_REQUESTS_AMOUNT = 11;
 CONST OPTIMIZED_REQUESTS_AMOUNT = 11;
 
-
 for($i=1; $i<=HOSTS_NUMBER; $i++){
-    $hostInstances[$i] = new \Host($i, INITIAL_LOAD);
+    $hostInstances[$i] = new Host($i, INITIAL_LOAD);
 }
 
-$loadBalancer =  new \LoadBalancer($hostInstances, 1);
-$request =  new \Request();
+$loadBalancer =  new LoadBalancer($hostInstances, 1);
+$request =  new Request();
 
 echo PHP_EOL;
 echo "Testing sequential request handling" . PHP_EOL;
@@ -27,10 +26,10 @@ for($i=0; $i<SEQENTIAL_REQUESTS_AMOUNT ; $i++){
 // Clearing hostInstances array for optimized balancing test
 $hostInstances = array();
 for($i=1; $i<=HOSTS_NUMBER; $i++){
-    $hostInstances[$i] = new \Host($i, INITIAL_LOAD);
+    $hostInstances[$i] = new Host($i, INITIAL_LOAD);
 }
 
-$loadBalancer =  new \LoadBalancer($hostInstances, 2);
+$loadBalancer->setBalancingVariant(2);
 
 echo PHP_EOL;
 echo 'Testing optimized request handling' . PHP_EOL;
@@ -38,20 +37,18 @@ echo '----------------------------------' . PHP_EOL;
 echo PHP_EOL;
 echo 'Initial load:' . PHP_EOL;
 
-printHostsLoad($hostInstances);
+printHostsLoad($loadBalancer);
 
 for($i=0; $i<OPTIMIZED_REQUESTS_AMOUNT; $i++){
     $loadBalancer->handleRequest($request);
     echo 'New load:' . PHP_EOL;
-    printHostsLoad($hostInstances);
+    printHostsLoad($loadBalancer);
 }
 
-function printHostsLoad($hostInstances)
+function printHostsLoad($loadBalancer)
 {
-    foreach($hostInstances as $number => $host){
+    foreach($loadBalancer->getHostInstances() as $host){
     echo 'Host\'s ' . $host->getNumber() . ' load: ' . $host->getLoad() . PHP_EOL;
     }
     echo PHP_EOL;
 }
-
-

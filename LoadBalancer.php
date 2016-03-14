@@ -6,6 +6,9 @@
  * 
  * The two constants were introduced to make the code easier to read - the reader
  * doesn't have to check what $this->loadBalancingVariant == 1 means in practice.
+ * In real application those would be best placed in a separate class (i.e. Enum),
+ * and used every time a balancing variant must be defined by any class - this way
+ * a potential value change is limited only to this one occurence in the code.
  * 
  * It is also assumed that hosts list must be sent as an array.
  * 
@@ -14,6 +17,12 @@
  * 
  * In case of optimized balancing, if two hosts have the same minimal load, 
  * it is assumed that it doesn't matter which of them will be chosen.
+ * 
+ * In case of a detected variables problem, LoadBalancer throws Exceptions.
+ * It is assumed those will be gracefully handled by controller using the
+ * LoadBalancer object, using a try{}catch($e){} block.
+ * 
+ * Getters and setters at the end of the class were added for testing purposes.
  * 
  * @author Marcin Karbowski <marcin.a.karbowski@gmail.com>
  */
@@ -60,15 +69,14 @@ class LoadBalancer
      */
     public function handleRequest(Request $request = null)
     {
-        if ( ! $this->parametersAreValid()){
-            echo 'Incorrect balancing parameters. Terminating.' . PHP_EOL;
-            return;
-        }
+        $this->validateSettings();
         $host = ($this->loadBalancingVariant == self::SEQUENTIAL) ?
                 $this->findNextHost() :
                 $this->findOptimalHost();
-        
-        $host->handleRequest($request);
+        if( ! is_a($host, 'Host')){
+            throw new Exception('Incorrect host object provided.');
+        }
+            $host->handleRequest($request);
     }
     
     /**
@@ -77,20 +85,17 @@ class LoadBalancer
      * @return bool
      * @throws Exception
      */
-    private function parametersAreValid()
+    private function validateSettings()
     {
         if(empty($this->hostInstances)){
-            echo 'Provided hosts list is empty!' . PHP_EOL;
-            return false;
+            throw new Exception('Provided hosts list is empty.');
         }
         if(! is_int($this->loadBalancingVariant) ||
            $this->loadBalancingVariant != self::SEQUENTIAL && 
            $this->loadBalancingVariant != self::OPTIMIZED){
-                echo 'Incorrect balancing variant!' . PHP_EOL;
-                return false;
+                throw new Exception('Incorrect balancing variant.');
            }
-        return true;   
-    }
+     }
 
     /**
      * Returns first host in the array and puts him on host array end
@@ -132,8 +137,23 @@ class LoadBalancer
         $this->loadBalancingVariant = $balancingVariant;
     }
     
-        public function getBalancingVariant()
+    /**
+     * Return balancing variant
+     * 
+     * @return int
+     */
+    public function getBalancingVariant()
     {
         return $this->loadBalancingVariant;
+    }
+    
+    /**
+     * Return host instances
+     * 
+     * @return array
+     */
+    public function getHostInstances()
+    {
+        return $this->hostInstances;
     }
 }
