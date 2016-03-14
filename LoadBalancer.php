@@ -148,6 +148,16 @@ class LoadBalancer
     }
     
     /**
+     * Set host instances
+     * 
+     * @param array
+     */
+    public function setHostInstances(array $hostInstances)
+    {
+        $this->hostInstances = $hostInstances;
+    }
+    
+    /**
      * Return host instances
      * 
      * @return array

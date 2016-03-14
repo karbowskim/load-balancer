@@ -4,13 +4,14 @@ include_once 'Host.php';
 include_once 'Request.php';
 
 CONST HOSTS_NUMBER = 5;
-CONST INITIAL_LOAD = 0.6;
+CONST INITIAL_LOAD = 0.75;
 CONST SEQENTIAL_REQUESTS_AMOUNT = 11;
 CONST OPTIMIZED_REQUESTS_AMOUNT = 11;
 
 for($i=1; $i<=HOSTS_NUMBER; $i++){
     $hostInstances[$i] = new Host($i, INITIAL_LOAD);
 }
+$hostInstances[] = new Host($i, 0.4);
 
 $loadBalancer =  new LoadBalancer($hostInstances, 1);
 $request =  new Request();
@@ -28,8 +29,10 @@ $hostInstances = array();
 for($i=1; $i<=HOSTS_NUMBER; $i++){
     $hostInstances[$i] = new Host($i, INITIAL_LOAD);
 }
+$hostInstances[] = new Host($i, 0.4);
 
 $loadBalancer->setBalancingVariant(2);
+$loadBalancer->setHostInstances($hostInstances);
 
 echo PHP_EOL;
 echo 'Testing optimized request handling' . PHP_EOL;
