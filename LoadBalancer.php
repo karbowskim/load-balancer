@@ -114,14 +114,14 @@ class LoadBalancer
      */
     private function findOptimalHost()
     {
-        foreach((array)$this->hostInstances as $key => $instance){
-            if($instance->getLoad() < 0.75){
-                return $instance;
-            }
-        }
         $loadsArray = array();
         foreach((array)$this->hostInstances as $key => $instance){
-            $loadsArray[$key] = $instance->getLoad();
+            $instanceLoad = $instance->getLoad();
+            if($instanceLoad < 0.75){
+                return $instance;
+            }else{
+                $loadsArray[$key] = $instanceLoad;    
+            }
         }
         $leastLoadedHostId = array_search(min($loadsArray), $loadsArray);
         return $this->hostInstances[$leastLoadedHostId];
